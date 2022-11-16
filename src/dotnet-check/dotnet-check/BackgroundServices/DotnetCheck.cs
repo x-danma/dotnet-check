@@ -1,3 +1,4 @@
+using dotnet_check.Data;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -28,40 +29,42 @@ namespace CheckDotnetVersions.BackGroundServices
         private async Task CheckAvailableDotnetVersions()
         {
             var releaseInfo = await httpClient.GetFromJsonAsync<ReleaseInfo>("https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json");
+
+            if (releaseInfo == null)
+            {
+                return;
+            }
+
+            var existingReleaseIndexes = await httpClient.GetFromJsonAsync<List<ReleasesIndex>>("https://localhost:7158/api/ReleasesIndex");
+            if (existingReleaseIndexes is null)
+            {
+                return;
+            };
+
+            await SaveReleaseIndexAsync(channelVersion: "6.0", releaseInfo, existingReleaseIndexes);
+            await SaveReleaseIndexAsync(channelVersion: "7.0", releaseInfo, existingReleaseIndexes);
+
             Console.Write(releaseInfo);
         }
-    }
 
-    public class ReleasesIndex
-    {
-        [JsonPropertyName("channel-version")]
-        public string channelversion { get; set; }
+        private async Task SaveReleaseIndexAsync(string channelVersion, ReleaseInfo releaseInfo, List<ReleasesIndex> existingReleaseIndexes)
+        {
+            var releaseIndex = releaseInfo.releasesindex.First(ri => ri.channelversion == channelVersion);
 
-        [JsonPropertyName("latest-release")]
-        public string latestrelease { get; set; }
+            if (existingReleaseIndexes.Any(ri => ri.channelversion == releaseIndex.channelversion && ri.latestrelease == releaseIndex.latestrelease))
+            {
+                return;
+            }
 
-        [JsonPropertyName("latest-release-date")]
-        public string latestreleasedate { get; set; }
-        public bool security { get; set; }
+            await httpClient.PostAsJsonAsync("https://localhost:7158/api/ReleasesIndex", releaseIndex);
 
-        [JsonPropertyName("latest-runtime")]
-        public string latestruntime { get; set; }
+            SendMessage(releaseIndex);
+        }
 
-        [JsonPropertyName("latest-sdk")]
-        public string latestsdk { get; set; }
-        public string product { get; set; }
-
-        [JsonPropertyName("release-type")]
-        public string releasetype { get; set; }
-
-        [JsonPropertyName("support-phase")]
-        public string supportphase { get; set; }
-
-        [JsonPropertyName("eol-date")]
-        public string eoldate { get; set; }
-
-        [JsonPropertyName("releases.json")]
-        public string releasesjson { get; set; }
+        private void SendMessage(ReleasesIndex releaseIndex)
+        {
+            Console.WriteLine($"""Hello! New version was updated! dotnet {releaseIndex.channelversion} has been updated to {releaseIndex.latestrelease} on date {releaseIndex.latestreleasedate}""");
+        }
     }
 
     public class ReleaseInfo
