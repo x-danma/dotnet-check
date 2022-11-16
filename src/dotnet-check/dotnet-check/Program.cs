@@ -14,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<DotnetCheck>();
 builder.Services.AddHttpClient<DotnetCheck>();
 
+builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(nameof(ApiOptions)));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

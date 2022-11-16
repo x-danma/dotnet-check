@@ -1,5 +1,7 @@
 using dotnet_check.Data;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -8,14 +10,16 @@ namespace CheckDotnetVersions.BackGroundServices
 {
     public class DotnetCheck : BackgroundService
     {
-        public DotnetCheck(HttpClient httpClient, IWebHostEnvironment environment)
+        public DotnetCheck(HttpClient httpClient, IWebHostEnvironment environment, IOptions<ApiOptions> apiOptions)
         {
             this.httpClient = httpClient;
+            this.apiOptions = apiOptions;
             timer = new(environment.IsDevelopment() ? TimeSpan.FromSeconds(5) : TimeSpan.FromHours(24));
         }
 
         private readonly PeriodicTimer timer;
         private readonly HttpClient httpClient;
+        private readonly IOptions<ApiOptions> apiOptions;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -35,7 +39,7 @@ namespace CheckDotnetVersions.BackGroundServices
                 return;
             }
 
-            var existingReleaseIndexes = await httpClient.GetFromJsonAsync<List<ReleasesIndex>>("https://localhost:7158/api/ReleasesIndex");
+            var existingReleaseIndexes = await httpClient.GetFromJsonAsync<List<ReleasesIndex>>($"{apiOptions.Value.BaseUrl}/api/ReleasesIndex");
             if (existingReleaseIndexes is null)
             {
                 return;
@@ -56,7 +60,7 @@ namespace CheckDotnetVersions.BackGroundServices
                 return;
             }
 
-            await httpClient.PostAsJsonAsync("https://localhost:7158/api/ReleasesIndex", releaseIndex);
+            await httpClient.PostAsJsonAsync($"{apiOptions.Value.BaseUrl}/api/ReleasesIndex", releaseIndex);
 
             SendMessage(releaseIndex);
         }
