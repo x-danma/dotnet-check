@@ -17,7 +17,7 @@ jobs:
       PR_AUTHOR: ${{ github.event.pull_request.user.login }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "PR author: $PR_AUTHOR"
+      - run: echo "PR author $PR_AUTHOR"
       - uses: actions/github-script@v6
         if: ${{ github.event.pull_request.user.login == 'dependabot' }}
         with:
