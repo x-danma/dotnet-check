@@ -6,14 +6,20 @@
 version: 2
 updates:
 
-  # Maintain dependencies for GitHub Actions
+  # Maintain dependencies for gitsubmodule
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
       interval: "daily"
 
-  # Maintain dependencies for npm
+  # Maintain dependencies for github-actions
   - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+
+  # Maintain dependencies for nuget
+  - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "daily"
