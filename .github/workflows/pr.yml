@@ -11,7 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v3
-  
+
+  dotnet-build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: ls
+      - run: ls -al $GITHUB_WORKSPACE
+      - run: dotnet build ./src/dotnet-check/dotnet-check/dotnet-check.csproj
   comment:
     env:
       PR_AUTHOR: ${{ github.event.pull_request.user.login }}
@@ -19,14 +25,14 @@ jobs:
     steps:
       - run: echo "PR author $PR_AUTHOR"
       - uses: actions/github-script@v6
-        if: ${{ github.event.pull_request.user.login == 'dependabot' }}
+        if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '👋 Thanks for reporting!'
+              body: '@dependabot squash and merge'
             })
   build:
     runs-on: ubuntu-latest
