@@ -19,7 +19,7 @@ jobs:
     steps:
       - run: echo "PR author $PR_AUTHOR"
       - uses: actions/github-script@v6
-        if: ${{ github.event.pull_request.user.login == 'dependabot' }}
+        if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
         with:
           script: |
             github.rest.issues.createComment({
