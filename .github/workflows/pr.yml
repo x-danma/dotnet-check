@@ -15,8 +15,7 @@ jobs:
   dotnet-build:
     runs-on: ubuntu-latest
     steps:
-      - run: dotnet build ./src/dotnet-check/dotnet-check.sln
-  
+      - run: dotnet build ./src/dotnet-check/dotnet-check/dotnet-check.csproj
   comment:
     env:
       PR_AUTHOR: ${{ github.event.pull_request.user.login }}
