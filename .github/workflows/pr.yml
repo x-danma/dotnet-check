@@ -28,3 +28,8 @@ jobs:
               repo: context.repo.repo,
               body: '👋 Thanks for reporting!'
             })
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Echo PR author
+      run: echo "The author of this PR is ${{ github.event.pull_request.user.login }}"
