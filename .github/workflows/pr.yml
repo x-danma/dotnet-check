@@ -15,7 +15,7 @@ jobs:
   dotnet-build:
     runs-on: ubuntu-latest
     steps:
-      - run: dotnet build src/dotnet-check/dotnet-check.sln
+      - run: dotnet build ./src/dotnet-check/dotnet-check.sln
   
   comment:
     env:
