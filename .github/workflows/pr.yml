@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: ls
-      - run: echo $GITHUB_WORKSPACE
+      - run: ls -al $GITHUB_WORKSPACE
       - run: dotnet build ./src/dotnet-check/dotnet-check/dotnet-check.csproj
   comment:
     env:
